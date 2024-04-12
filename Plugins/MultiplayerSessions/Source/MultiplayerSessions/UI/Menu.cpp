@@ -5,8 +5,9 @@
 #include "Components/Button.h"
 #include "MultiplayerSessions/Subsystem/MultiplayerSessionsSubsystem.h"
 
-void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch)
+void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath )
 {
+	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	NumPublicConnections = NumberOfPublicConnections;
 	MatchType = TypeOfMatch;
 	AddToViewport();
@@ -74,7 +75,7 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 		GEngine->AddOnScreenDebugMessage(-1, 500.0f, FColor::Blue, FString::Printf(TEXT("Session created Successful")));
 		UWorld* World = GetWorld();
 		if(!World) return;
-		World->ServerTravel("/Game/ThirdPerson/Maps/MAP_Lobby?listen");
+		World->ServerTravel(PathToLobby);
 	}
 	else
 	{
