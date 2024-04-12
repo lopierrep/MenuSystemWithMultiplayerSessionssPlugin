@@ -80,14 +80,15 @@ void UMenu::OnCreateSession(bool bWasSuccessful)
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 500.0f, FColor::Red, FString::Printf(TEXT("Fail to create Session")));
+		HostButton->SetIsEnabled(true);
 	}	
 }
 
-void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& FSessionMatchmakingResults, bool bWasSuccessful)
+void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& SessionResults, bool bWasSuccessful)
 {
 	if (MultiplayerSessionsSubsystem == nullptr) return;
 	
-	for (auto Result : FSessionMatchmakingResults)
+	for (auto Result : SessionResults)
 	{
 		FString SettingsValue;
 		Result.Session.SessionSettings.Get(FName("MatchType"), SettingsValue);
@@ -96,6 +97,10 @@ void UMenu::OnFindSessions(const TArray<FOnlineSessionSearchResult>& FSessionMat
 			MultiplayerSessionsSubsystem->JoinSession(Result);
 			return;
 		}
+	}
+	if (!bWasSuccessful || SessionResults.IsEmpty())
+	{
+		JoinButton->SetIsEnabled(true);		
 	}
 }
 
@@ -116,6 +121,10 @@ void UMenu::OnJoinSession(EOnJoinSessionCompleteResult::Type Result)
 			}
 		}	
 	}
+	if (Result != EOnJoinSessionCompleteResult::Success)
+	{
+		JoinButton->SetIsEnabled(true);		
+	}
 }
 
 void UMenu::OnDestroySession(bool bWasSuccessful)
@@ -127,13 +136,15 @@ void UMenu::OnStartSession(bool bWasSuccessful)
 }
 
 void UMenu::HostButtonClicked()
-{	
+{
+	HostButton->SetIsEnabled(false);
 	if (!MultiplayerSessionsSubsystem) return;
 	MultiplayerSessionsSubsystem->CreateSession(NumPublicConnections, MatchType);	
 }
 
 void UMenu::JoinButtonClicked()
 {
+	JoinButton->SetIsEnabled(false);
 	if (!GEngine) return;
 	GEngine->AddOnScreenDebugMessage(-1, 500.0f, FColor::Yellow, FString::Printf(TEXT("JOIN BUTTON CLICKED")));
 
